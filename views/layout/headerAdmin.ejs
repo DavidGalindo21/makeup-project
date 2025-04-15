@@ -1,0 +1,73 @@
+    <!--== Wrapper Start ==-->
+    <div class="wrapper">
+        <!--== Start Header Wrapper ==-->
+        <header class="header-area sticky-header header-transparent">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-5 col-lg-2 col-xl-1">
+                        <div class="header-logo">
+                            <a href="/">
+                                <img class="logo-main" src="/images/logo.png" width="95" height="68" alt="Logo" />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 col-xl-7 d-none d-lg-block">
+                        <div class="header-navigation ps-7">
+                            <ul class="main-nav justify-content-start">
+                                <li class="has-submenu"><a href="/admin/dashboard">Inicio</a>
+
+                                </li>
+                                
+                                
+                                <li class="has-submenu position-static"><a href="/admin/pedidos">Pedidos</a>
+                                 <li class="has-submenu position-static"><a href="/admin/inventario">Inventario</a>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-7 col-lg-3 col-xl-4">
+                        <div class="header-action justify-content-end">
+
+   
+                            
+                            <% if (!usuario) { %>
+
+                            <a class="header-action-btn" href="account-login">
+                                <span class="icon">
+                  <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <rect class="icon-rect" width="30" height="30" fill="url(#pattern3)"/>
+                    <defs>
+                      <pattern id="pattern3" patternContentUnits="objectBoundingBox" width="1" height="1">
+                        <use xlink:href="#image0_504:10" transform="scale(0.0333333)"/>
+                      </pattern>
+                      <image id="image0_504:10" width="30" height="30" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABmJLR0QA/wD/AP+gvaeTAAABEUlEQVRIie3UMUoDYRDF8Z8psqUpLBRrBS+gx7ATD6E5iSjeQQ/gJUzEwmChnZZaKZiQ0ljsLkhQM5/5Agr74DX7DfOfgZ1Hoz+qAl30Marcx2H1thCtY4DJN76parKqmAH9DM+6eTcArX2QE3yVAO7lBA8TwMNIw6UgeJI46My+rWCjUQL0LVIUBd8lgEO1UfBZAvg8oXamCuWNRu64nRNMmUo/wReSXLXayoDoKc9miMvqW/ZNG2VRNLla2MYudrCFTvX2intlnl/gGu/zDraGYzyLZ/UTjrD6G2AHpxgnAKc9xgmWo9BNPM4BnPYDNiLg24zQ2oNpyFdZvRKZLlGhnvvKPzXXti/Yy7hEo3+iD9EHtgdqxQnwAAAAAElFTkSuQmCC"/>
+                    </defs>
+                  </svg>
+                </span>
+                            </a>
+                      <% } %>
+                         
+                        <% if(usuario) { %>
+                            <button class="header-action-btn" type="button" onclick="logoutUser()">
+                                <span class="icon">
+                                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+
+                            <% } %>
+                            
+
+                            <button class="header-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#AsideOffcanvasMenu" aria-controls="AsideOffcanvasMenu">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!--== End Header Wrapper ==-->

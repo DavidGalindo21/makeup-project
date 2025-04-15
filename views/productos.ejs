@@ -1,0 +1,119 @@
+  
+  
+   <!-- Sección Agregar Producto -->
+   <div class="seccion-productos mt-5">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <button id="openModalBtnProd" title="Agrega un nuevo producto" class="rounded-pink-button">+</button>
+      <h4>Agregar Producto</h4>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <div class="table-responsive-md table-responsive-lg">
+      <table class="table">
+        <thead class="pink-thead">
+          <tr class="text-center">
+            <th>ID</th>
+            <th>NOMBRE</th>
+            <th>IMAGEN</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+      
+            <tr class="text-center">
+              <td></td>
+              <td class="d-flex gap-1 justify-content-center align-items-center">
+                <button 
+                  type="button" 
+                  class="btn btn-primary" 
+                  style="background-color: #f3dfbc; border:none"
+                 
+                >
+                  Imagen
+                </button>
+              </td>
+              <td>
+                <button 
+                  type="button" 
+                  class="btn btn-warning" 
+                  style="border:none; background-color: rgb(191, 167, 213);"
+                
+                >
+                  <i class="fa fa-edit"></i> Editar
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-danger" 
+                  style="border:none; background-color: rgb(153, 216, 195);"
+                 
+                >
+                  <i class="fa fa-trash"></i> Eliminar
+                </button>
+              </td>
+            </tr>
+
+            <!-- Modal Imagen Producto -->
+            <div class="modal style="display: none;">
+              <div class="modal-content">
+                <span class="close-btnP" >&times;</span>
+                <h2 style="color: #7952b3;">Imagen</h2><br>
+                <img  class="img-fluid imgM" >
+              </div>
+            </div>
+        </tbody>
+      </table>
+    </div>      
+  </div>
+
+  
+  <!-- Modal Agregar Producto -->
+  <div id="agregarProd" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModalBtnP">&times;</span>
+      <h2 style="color: #7952b3;">Nuevo Producto</h2><br>
+      <form id="addProducto" action="/admin/inventario/producto" method="post" enctype="multipart/form-data">
+        <input type="hidden" id="idProd" name="idProd">
+  
+        <div class="categoria-row">
+          <label for="categoriaP">Categoría:</label>
+          <select class="inp" id="categoriaP" name="categoriaP" required>
+            <% categorias.forEach(function(categoria) { %>
+              <option value="<%= categoria.id %>"><%= categoria.Nombre %></option>
+            <% }); %>
+          </select>
+        </div>
+  
+        <label for="nombreP">Nombre del Producto:</label>
+        <input class="inp" type="text" id="nombreP" name="nombre" required>
+  
+        <div class="imgcargE">
+          <div class="icon-wrapperE">
+            <img id="previewP" class="image-previewE" style="display: none;" />
+          </div>
+  
+          <div class="button-wrapper">
+            <label title="Dar clic para seleccionar imagen" class="btn-up btn-upload" for="fotoP">
+              Seleccionar Imagen
+            </label>
+          </div>
+          <br>
+  
+          <input type="file" id="fotoP" name="fotoP" accept="image/*" style="display: none;" onchange="previewImageP(event)" required>
+        </div>
+  
+        <label for="cantidad">Cantidad:</label>
+        <input class="number" type="number" id="cantidad" name="cantidad" required>
+  
+        <label for="precioC">Precio Compra:</label>
+        <input class="inp" type="number" id="precioC" name="precioC" step="0.01" min="0" required>
+  
+        <label for="precioV">Precio Venta:</label>
+        <input class="inp" type="number" id="precioV" name="precioV" step="0.01" min="0" required>
+  
+        <br>
+        <div class="btng">
+          <input type="submit" name="guardarProd" class="btn-Ag" value="Guardar">
+        </div>
+      </form>
+    </div>
+  </div>

@@ -1,0 +1,413 @@
+<%- include('./layout/header') %>
+<%- include('./layout/headerAdmin') %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Contenedor de alertas -->
+<div id="alerts-container"
+     data-success="<%= successMessage %>"
+     data-errors='<%= JSON.stringify(errores) %>'></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const alertsContainer = document.getElementById('alerts-container');
+    const successMessage = alertsContainer.dataset.success.trim();
+    const errores = JSON.parse(alertsContainer.dataset.errors || '[]');
+
+    if (successMessage) {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: successMessage,
+        confirmButtonText: 'Aceptar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          location.href = '/admin/inventario';
+        }
+      });
+    }
+
+    if (errores.length > 0) {
+      let errorMsg = errores.map(error => `<p>${error.mensaje}</p>`).join('');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error en el formulario',
+        html: errorMsg,
+        confirmButtonText: 'Aceptar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          location.href = '/admin/inventario';
+        }
+      });
+    }
+  });
+</script>
+
+
+<br>
+<div class="container d-flex justify-content-center mt-10">
+  <div class="col-auto col-md-9 col-xl-10 p-4">
+<div class="d-flex justify-content-center align-items-center gap-2 mb-3 mt-3">
+  <a href="/admin/descargar/pdf" class="btn">Generar PDF</a>
+  <a href="/admin/descargar/excel" class="btn btn-success">Generar Excel</a>
+</div>
+
+    <!-- Sección Agregar Categoría -->
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <button id="openModalBtn" title="Agrega una nueva categoría" class="rounded-pink-button">+</button>
+      <h4>Agregar Categoría</h4>
+    </div>
+
+    <!-- Tabla de Categorías -->
+    <div class="table-responsive-md table-responsive-lg">
+      <table class="table">
+        <thead class="pink-thead">
+          <tr class="text-center">
+            <th>ID</th>
+            <th>NOMBRE</th>
+            <th>IMAGEN</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% categorias.forEach((categoria) => { %>
+            <tr class="text-center">
+              <td><%= categoria.Id %></td>
+              <td><%= categoria.Nombre %></td>
+              <td class="d-flex justify-content-center align-items-center">
+                <button 
+                  type="button" 
+                  class="btn btn-primary" 
+                  style="background-color: #f3dfbc; border:none"
+                  onclick="abrirModal('<%= categoria.Id %>')"
+                >
+                  Imagen
+                </button>
+              </td>
+              <td>
+                <button 
+                id="openME"
+                type="button" 
+                class="btn btn-warning" 
+                style="border:none; background-color: rgb(191, 167, 213);"
+                onclick="modaleditarCategoria('<%= categoria.Id %>')"                >
+                <i class="fa fa-edit"></i> Editar
+              </button>
+                <button 
+                  type="button" 
+                  class="btn btn-danger" 
+                  style="border:none; background-color: rgb(153, 216, 195);"
+                  onclick="eliminarCategoria('<%= categoria.Id %>')"
+                >
+                  <i class="fa fa-trash"></i> Eliminar
+                </button>
+              </td>
+            </tr>
+
+            <!-- Modal Imagen Categoría -->
+            <div class="modal" id="modal-img-<%= categoria.Id %>" style="display: none;">
+              <div class="modal-content">
+                <span class="close-btn" onclick="cerrarModal('<%= categoria.Id %>')">&times;</span>
+                <h2 style="color: #7952b3;">Imagen</h2><br>
+                <img src="/uploads/<%= categoria.Imagen %>" class="img-fluid imgM" alt="Imagen de <%= categoria.Nombre %>">
+              </div>
+            </div>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal Agregar Categoría -->
+    <div id="AgregarCat" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModalBtnE">&times;</span>
+        <h2 style="color: #7952b3;">Nueva Categoría</h2><br>
+        <form id="addCat" action="/admin/inventario/categorias" method="post" enctype="multipart/form-data">
+          <input type="hidden" id="id" name="id">
+
+          <label for="nameE">Nombre:</label>
+          <input class="inp" type="text" id="nombre" name="nombre" required>
+
+          <div class="imgcargE">
+            <div class="icon-wrapperE">
+              <img id="previewE" class="image-previewE" style="display: none;" />
+            </div>
+
+            <div class="button-wrapper">
+              <img id="previewE" src="" alt="Vista previa" style="display: none;" />
+              <label title="Dar clic para seleccionar imagen" class="btn-up btn-upload" for="fotoC">
+                Seleccionar Imagen
+              </label>
+            </div>
+
+            <input type="file" id="fotoC" name="fotoC" accept="image/*" style="display: none;" onchange="previewImageE(event)" required>
+          </div>
+
+          <br>
+          <div class="btng">
+            <input type="submit" name="guardarCat" class="btn-Ag" value="Guardar">
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <% categorias.forEach((categoria) => { %>
+      <div id="modal-editC-<%= categoria.Id %>" class="modal">
+        <div class="modal-content">
+          <span class="close-btn" onclick="cerrarModaE('<%= categoria.Id %>')">&times;</span>
+          <h2 style="color: #7952b3;">Editar Categoría</h2><br>
+    
+        <form id="editProdForm" action="/admin/inventario/categorias/editar" method="post" enctype="multipart/form-data">
+          <input type="hidden" id="id" name="id" value="<%= categoria.Id %>"> 
+    
+          <label for="nombre">Nombre:</label>
+          <input class="inp" type="text" id="nombre" name="nombre" value="<%= categoria.Nombre %>" required>
+    
+          <div class="imgcargE">
+            <div class="icon-wrapperE">
+              <img src="/uploads/<%= categoria.Imagen %>" id="img-preview-<%= categoria.Id %>" class="img-fluid imgM" alt="Imagen de <%= categoria.Nombre %>">            </div>
+    
+              <div class="button-wrapper">
+                <label title="Dar clic para seleccionar imagen" class="btn-up btn-upload" for="fotoC-<%= categoria.Id %>">
+                  Cambiar Imagen
+                </label>
+              </div>
+              
+              <input type="file" id="fotoC-<%= categoria.Id %>" name="fotoC" accept="image/*" style="display: none;" 
+              onchange="previewImageEdit(event, '<%= categoria.Id %>')" >
+         </div> 
+          <br>
+          <div class="btng">
+            <input type="submit" name="editarProd" class="btn-Ag" value="Actualizar">
+          </div>
+        </form>
+      </div>
+    </div>
+    <% }) %>
+    
+    
+
+   <!-- Sección Agregar Producto -->
+   <div class="seccion-productos mt-5">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <button id="openModalBtnProd" title="Agrega un nuevo producto" class="rounded-pink-button">+</button>
+      <h4>Agregar Producto</h4>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <div class="table-responsive table-responsive-md table-responsive-lg">
+      <table class="table">
+        <thead class="pink-thead">
+          <tr class="text-center">
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio Compra</th>
+            <th>Precio Venta</th>
+            <th>Ganancia</th>
+            <th>Cantidad Vendida</th>
+            <th>Cantidad Actual</th>
+            <th>Total Venta</th>
+            <th>Status</th>
+            <th>IMAGEN</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+      
+          <% productos.forEach((producto) => { %>
+            <tr class="text-center" >
+              <td><%= producto.id %></td>
+              <td><%= producto.nombre %></td>
+              <td><%= producto.precio_compra %></td>
+              <td><%= producto.precio_venta %></td>
+              <td><%= producto.ganancia %></td>
+              <td><%= producto.cantidad_vendida%></td>
+              <td><%= producto.cantidad_actual %></td>
+              <td><%= producto.total %></td>
+              <td><%= producto.status %></td>
+              <td class="d-flex justify-content-center align-items-center">
+                <button 
+                  type="button" 
+                  class="btn btn-primary" 
+                  style="background-color: #f3dfbc; border:none; "
+                  onclick="abrirModal('<%= producto.id %>')"
+                >
+                  Imagen
+                </button>
+              </td>
+              <td>
+                <div class="d-inline-flex gap-1">
+                  <!-- Botón Editar -->
+                  <button 
+                  type="button" 
+                  class="btn btn-warning" 
+                  style="background-color: rgb(191, 167, 213); border: none; width: 40px; height: 45px; font-size: 24px; display: flex; align-items: center; justify-content: center;"
+                  onclick="abrirModalEditar('<%= producto.id %>')">                    
+                  <i class="fa fa-edit"></i>
+                </button>
+                
+                            
+                  <!-- Botón Eliminar -->
+                  <button 
+                    type="button" 
+                    class="btn btn-danger " 
+                    style="background-color: rgb(153, 216, 195); border: none; width: 40px; height: 45px; font-size: 24px; display: flex; align-items: center; justify-content: center;"
+                    onclick="eliminarProducto('<%= producto.id %>')"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+                      <!-- Modal Imagen Producto -->
+                      <div class="modal" id="modal-img-<%= producto.id %>" style="display: none;">
+                        <div class="modal-content">
+                          <span class="close-btn" onclick="cerrarModal('<%= producto.id %>')">&times;</span>
+                          <h2 style="color: #7952b3;">Imagen</h2><br>
+                          <img src="/uploads/<%= producto.imagen %>" class="img-fluid imgM" alt="Imagen de <%= producto.nombre %>">
+                        </div>
+                      </div>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+          
+     
+  </div>
+
+
+
+  
+   <!-- Modal Agregar Producto -->
+   <div id="agregarProd" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModalBtnP">&times;</span>
+      <h2 style="color: #7952b3;">Nuevo Producto</h2><br>
+      <form id="addProducto"  action="/admin/inventario/producto" method="post" enctype="multipart/form-data">        
+        <input type="hidden" id="id" name="id"> 
+  
+        <div class="categoria-row">
+          <label for="categoriaP">Categoría:</label>
+          <select class="inp" id="categoriaP" name="categoriaP" required>
+            <option value="" disabled selected>Selecciona una categoría</option>
+            <% categorias.forEach(function(categoria) { %>
+              <option value="<%= categoria.Id %>"><%= categoria.Nombre %></option>
+            <% }); %>
+          </select>
+        </div>
+  
+        <label for="nombreP">Nombre del Producto:</label>
+        <input class="inp" type="text" id="nombre" name="nombre" required>
+  
+        <div class="imgcargE">
+          <div class="icon-wrapperE">
+            <img id="previewP" class="image-previewE" style="display: none;" />
+          </div>
+  
+          <div class="button-wrapper">
+            <label title="Dar clic para seleccionar imagen" class="btn-up btn-upload" for="fotoP">
+              Seleccionar Imagen
+            </label>
+          </div>
+          <br>
+  
+          <input type="file" id="fotoP" name="fotoP" accept="image/*" style="display: none;" onchange="previewImageP(event)" required>
+        </div>
+  
+        <label for="cantidad">Cantidad:</label>
+        <input class="number" type="number" id="cantidad" name="cantidad" required>
+  
+        <label for="precioC">Precio Compra:</label>
+        <input class="inp" type="number" id="precioC" name="precioC" step="0.01" min="0" required>
+  
+        <label for="precioV">Precio Venta:</label>
+        <input class="inp" type="number" id="precioV" name="precioV" step="0.01" min="0" required>
+  
+        <br>
+        <div class="btng">
+          <input type="submit" class="btn-Ag">
+        </div>
+      </form>
+    </div>
+  </div>
+    
+  <% productos.forEach((producto) => { %>
+    <div id="modal-editarProducto<%= producto.id %>" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="cerrarModalEditProd('<%= producto.id %>')">&times;</span>      
+        <h2 style="color: #7952b3;">Editar Producto</h2><br>
+        <form id="editProducto" action="/admin/inventario/producto/editar" method="post" enctype="multipart/form-data">
+          <input type="hidden" id="id" name="id" value="<%= producto.id %>">
+  
+          <div class="categoria-row">
+            <label for="categoriaP">Categoría:</label>
+            <select class="inp" id="categoriaPr" name="categoriaPr" required>
+              <option value="" disabled>Selecciona una categoría</option>
+              <% categorias.forEach(function(categoria) { %>
+                <option value="<%= categoria.Id %>" <%= categoria.Id === producto.categoria_id ? 'selected' : '' %>><%= categoria.Nombre %></option>
+              <% }); %>
+            </select>
+            
+          </div>
+  
+          <label for="nombreP">Nombre del Producto:</label>
+          <input class="inp" type="text" id="nombre" name="nombre" value="<%= producto.nombre %>" required>
+  
+          <div class="imgcargE">
+            <div class="icon-wrapperE">
+              <img src="/uploads/<%= producto.imagen %>" id="img-previewP-<%= producto.id %>" class="img-fluid imgM" alt="Imagen de <%= producto.nombre %>">
+            </div>
+          
+            <div class="button-wrapper">
+              <label title="Dar clic para seleccionar imagen" class="btn-up btn-upload" for="fotoP-<%= producto.id %>">
+                Cambiar Imagen
+              </label>
+            </div>
+          
+            <input type="file" id="fotoP-<%= producto.id%>" name="fotoP" accept="image/*" style="display: none;" 
+            onchange="previewImageEditP(event, '<%= producto.id %>')">
+          </div>
+  
+          <label for="cantidad">Cantidad:</label>
+          <input class="number" type="number" id="cantidad" name="cantidad" value="<%= producto.cantidad_actual %>" required>
+  
+          <label for="precioC">Precio Compra:</label>
+          <input class="inp" type="number" id="precioC" name="precioC" step="0.01" min="0" value="<%= producto.precio_compra %>" required>
+  
+          <label for="precioV">Precio Venta:</label>
+          <input class="inp" type="number" id="precioV" name="precioV" step="0.01" min="0" value="<%= producto.precio_venta %>" required>
+  
+          <br>
+          <div class="btng">
+            <input type="submit" class="btn-Ag">
+          </div>
+        </form>
+      </div>
+    </div>
+  <% }); %>
+
+
+  </div>
+</div>
+
+
+
+<script src="/js/inventario.js"></script>
+   <!-- Vendors JS -->
+   <script src="/js/vendor/modernizr-3.11.7.min.js"></script>
+   <script src="/js/vendor/jquery-3.6.0.min.js"></script>
+   <script src="/js/vendor/jquery-migrate-3.3.2.min.js"></script>
+   <script src="/js/vendor/bootstrap.bundle.min.js"></script>
+
+   <!-- Plugins JS -->
+   <script src="/js/plugins/swiper-bundle.min.js"></script>
+   <script src="/js/plugins/fancybox.min.js"></script>
+   <script src="/js/plugins/jquery.nice-select.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+   <!-- Custom Main JS -->
+   <script src="/js/main.js"></script>
+</body>
+</html>
